@@ -1,0 +1,269 @@
+ET0734 DevOps for Networking — Sample Lab Test Answer Guide
+
+IMPORTANT SCOPE NOTE
+
+The supplied Sample Lab Test lists detailed tasks for Linux, but for
+Python, APIs, Git and Extra it only gives the names of other
+Cisco/NetAcad labs. It does not include their individual questions or
+required steps. Therefore, this guide gives a worked answer for every
+Linux requirement and identifies what additional material is needed to
+produce exact answers for Sections 2–5. Do not treat invented steps for
+those sections as official answers.
+
+1. LINUX
+
+Assumption: Your username is devasc and your home directory is
+/home/devasc. The commands below use ~, which means your home directory.
+
+A. Create the folder ~/samplelab
+
+    mkdir -p ~/samplelab
+
+Check:
+
+    ls ~
+
+B. Create an empty file ~/samplelab/testfile
+
+    touch ~/samplelab/testfile
+
+Check:
+
+    ls -l ~/samplelab/testfile
+
+C. Ping both IP addresses, stop each after 2 packets, use a 636-byte
+payload for 8.8.8.8, and append both commands’ output to testfile.
+
+    (ping -c 2 7.7.7.7; ping -c 2 -s 636 8.8.8.8) >> ~/samplelab/testfile
+
+Explanation: - ping: sends ICMP echo requests. - -c 2: sends 2 requests,
+then stops. - -s 636: sets the ICMP data payload to 636 bytes. - ; :
+runs the second command after the first command finishes. - Parentheses
+group both commands so the redirection applies to both. - >> appends
+output to the file without replacing existing contents. -
+~/samplelab/testfile is the destination file.
+
+Size clarification: On a typical Linux IPv4 ping, -s 636 means 636 bytes
+of data payload. The ICMP header (8 bytes) and IPv4 header (20 bytes)
+make the IPv4 packet typically 664 bytes in total. The lab’s 636-byte
+requirement is met by using -s 636.
+
+Check the saved output:
+
+    cat ~/samplelab/testfile
+
+Note: 7.7.7.7 may not reply in your network environment. If it does not
+reply, the latency search below will return no values. That does not by
+itself prove that your VM has no internet connection. You already
+confirmed that 8.8.8.8 replied in your test.
+
+D. Search and display only the latencies to 7.7.7.7
+
+    grep -F "7.7.7.7" ~/samplelab/testfile | grep -oP 'time=\\K[\\d.]+'
+
+Explanation: - grep -F “7.7.7.7”: selects lines containing that exact
+fixed string. - | : sends those selected lines to the next command. -
+grep -oP: prints only the part matched by a Perl-compatible regex. -
+time=: finds the latency field. - \K: excludes the text before it
+(time=) from the printed match. - [\d.]+: matches one or more digits or
+decimal points.
+
+Example output, if replies exist:
+
+    20.5
+    21.2
+
+If 7.7.7.7 returned no ping replies, there will be no latency values to
+display.
+
+Alternative that displays the label and unit too:
+
+    grep -F "7.7.7.7" ~/samplelab/testfile | grep -oE 'time=[0-9.]+ ms'
+
+E. Allow only the owner to have read and write access to testfile
+
+    chmod 600 ~/samplelab/testfile
+
+Meaning of 600: - Owner: read (4) + write (2) = 6 - Group: no
+permissions = 0 - Others: no permissions = 0
+
+Check:
+
+    ls -l ~/samplelab/testfile
+
+Expected permission string:
+
+    -rw-------
+
+F. View the top 10 processes owned by devasc
+
+One way to display the 10 processes using the most CPU:
+
+    ps -u devasc --sort=-%cpu | head -n 11
+
+Explanation: - ps -u devasc: lists processes owned by user devasc. -
+–sort=-%cpu: sorts by CPU usage, highest first. - head -n 11: shows the
+header plus 10 process rows.
+
+If your instructor means an interactive process viewer instead, use:
+
+    top -u devasc
+
+Press q to quit top.
+
+G. Securely copy a file from a Windows machine to devasc
+
+Run this from Windows PowerShell, not from the Linux VM:
+
+    scp "C:\\path\\to\\your\\file.ext" devasc@<VM_IP>:/home/devasc/
+
+Replace: - C:\path\to\your\file.ext with the actual Windows file path. -
+with the IP address of the devasc VM.
+
+To find the VM’s IP address inside Linux:
+
+    hostname -I
+
+Example format (replace the example address with your VM’s actual
+address):
+
+    scp "C:\\Users\\Student\\Desktop\\notes.txt" devasc@192.168.1.50:/home/devasc/
+
+This requires SSH/SCP access to the VM and network reachability from
+Windows. Depending on the VM network mode, the VM’s IP may not be
+reachable directly from the Windows host. Do not copy the example IP
+without checking yours.
+
+H. Create a soft symbolic link from ~/samplelab to ~/linkedfolder
+
+    ln -s ~/samplelab ~/linkedfolder
+
+Explanation: - ln: creates a link. - -s: creates a symbolic (soft)
+link. - First path: source/target being linked to. - Second path: name
+and location of the new link.
+
+Check:
+
+    ls -l ~
+
+You should see linkedfolder pointing to /home/devasc/samplelab (or its
+resolved home-directory path).
+
+I. Validate that testfile can be accessed via ~/linkedfolder
+
+    ls -l ~/linkedfolder/testfile
+
+You can also display it:
+
+    cat ~/linkedfolder/testfile
+
+J. Recursively delete ~/samplelab and all files within it
+
+    rm -r ~/samplelab
+
+Be careful: rm -r deletes the specified directory and its contents.
+Check the path before pressing Enter.
+
+K. Validate that the file is no longer found via ~/linkedfolder
+
+    ls -l ~/linkedfolder/testfile
+
+Because the symbolic link points to the deleted original directory, this
+should report that the file or directory does not exist. The link itself
+still exists but is now a dangling/broken symbolic link.
+
+You can inspect it with:
+
+    ls -l ~/linkedfolder
+
+L. Remove ~/linkedfolder
+
+    rm ~/linkedfolder
+
+This removes the symbolic link itself. It does not delete the original
+directory’s contents (which were already deleted in step J).
+
+Check:
+
+    ls -l ~
+
+There should no longer be a samplelab directory or linkedfolder link.
+
+2. PYTHON
+
+The sample test names this exercise: “3.6.6 Lab – Parse Different Data
+Types with Python”
+
+The supplied sample guide does not include the Python lab’s questions,
+starter code, input data, or expected output. Exact answers cannot be
+determined from the sample guide alone. Use the actual lab instructions
+to complete this section; do not assume a generic Python script is the
+required answer.
+
+3. APIs
+
+The sample test names this exercise: “4.5.5 Lab – Explore REST APIs with
+API Simulator and Postman”
+
+The supplied sample guide does not include the API endpoints, HTTP
+methods, request parameters, headers, body data, or expected responses.
+Exact Postman requests cannot be determined from the sample guide alone.
+The actual lab instructions are needed.
+
+4. GIT
+
+The sample test names this exercise: “3.3.11 Lab – Software Version
+Control with Git”
+
+The supplied sample guide does not list the required repository
+operations, file names, commit messages, branch names, or remote
+repository details. Exact Git commands cannot be determined from the
+sample guide alone. The actual lab instructions are needed.
+
+5. EXTRA
+
+The sample test names this exercise: “8.6.7 Lab – Construct a Python
+Script to Manage Webex Teams”
+
+The supplied sample guide does not include the script requirements,
+Webex API details, authentication method, or expected program behaviour.
+Exact answers cannot be determined from the sample guide alone. The
+actual lab instructions are needed.
+
+QUICK LINUX COMMAND REVISION
+
+mkdir DIR Create a directory. touch FILE Create an empty file (or update
+its timestamp). ls List directory contents. pwd Print the current
+working directory. cd DIR Change directory. ~ Your home directory (for
+devasc: /home/devasc). / The root of the filesystem. . The current
+directory. .. The parent directory. ping -c 2 IP Send 2 ping requests.
+ping -s 636 IP Use a 636-byte ICMP data payload. ; Run the next command
+after the previous one finishes. | Pipe output from one command into
+another. > Redirect output and overwrite the destination file. >>
+Redirect output and append to the destination file. grep Search text for
+a pattern. grep -F Search for a fixed literal string. grep -o Print only
+the matching portion. grep -P Use Perl-compatible regular expressions
+(if supported). chmod 600 FILE Owner read/write; group and others get no
+permissions. ps Display process information. head -n 11 Display the
+first 11 lines. scp Securely copy files over SSH. ln -s SOURCE LINK
+Create a symbolic link. rm -r DIR Recursively remove a directory and its
+contents. rm LINK Remove a symbolic link.
+
+PATH REMINDER
+
+If your prompt is:
+
+    devasc@labvm:~$
+
+then your current directory is /home/devasc.
+
+-   samplelab/testfile means a path relative to the current directory.
+-   ~/samplelab/testfile means a path starting from your home directory.
+-   /samplelab/testfile means a path starting directly from the
+    filesystem root.
+
+Therefore, if you created samplelab while in ~: touch samplelab/testfile
+and touch ~/samplelab/testfile both refer to the same file.
+
+But: touch /samplelab/testfile looks for /samplelab, which is a
+different location.

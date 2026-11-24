@@ -1,0 +1,72 @@
+ET0734 DevOps for Networking
+Sample Lab Test - Section 1: Linux (1.2.2 Lab – Linux Review)
+================================================================
+
+1. Create a folder ~/samplelab
+---------------------------------
+mkdir ~/samplelab
+
+2. Create an empty file ~/samplelab/testfile
+---------------------------------
+touch ~/samplelab/testfile
+
+3. Ping command (must be on a single line)
+---------------------------------
+Requirements:
+- IP addresses: 7.7.7.7 and 8.8.8.8
+- Stop after 2 tries
+- Ping to 8.8.8.8 with size of 636 bytes
+- Output appended to testfile
+
+Command:
+ping -c 2 7.7.7.7 >> ~/samplelab/testfile; ping -c 2 -s 636 8.8.8.8 >> ~/samplelab/testfile
+
+4. Search and display only the latencies to 7.7.7.7
+---------------------------------
+grep "7.7.7.7" ~/samplelab/testfile | grep -oP 'time=\K[\d.]+'
+
+Note: In many lab environments 7.7.7.7 does not respond (100% packet loss),
+so this command may return nothing. That is expected.
+
+5. Allow only the owner to have read and write access to the file
+---------------------------------
+chmod 600 ~/samplelab/testfile
+
+6. View the top 10 processes on devasc
+---------------------------------
+top -b -n 1 | head -17
+
+(Alternative)
+ps aux --sort=-%cpu | head -11
+
+7. Securely copy a file from a Windows machine to devasc
+---------------------------------
+Run from the Windows machine (adjust paths and username as needed):
+
+scp C:\path\to\yourfile.txt student@devasc:~/samplelab/
+
+8. Create a soft symbolic link from ~/samplelab to ~/linkedfolder
+---------------------------------
+ln -s ~/samplelab ~/linkedfolder
+
+9. Validate that testfile can be accessed via ~/linkedfolder
+---------------------------------
+ls -l ~/linkedfolder/testfile
+# or
+cat ~/linkedfolder/testfile
+
+10. Recursively delete ~/samplelab and all files within it
+---------------------------------
+rm -rf ~/samplelab
+
+11. Validate that the file is no longer found in ~/linkedfolder
+---------------------------------
+ls ~/linkedfolder/testfile
+# This should fail because the link is now broken
+
+12. Remove ~/linkedfolder
+---------------------------------
+rm ~/linkedfolder
+
+================================================================
+End of Linux section
